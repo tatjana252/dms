@@ -1,0 +1,44 @@
+﻿@model DocumentViewModel
+
+<div class="row">
+    <div class="input-group mb-3 col">
+        <input type="hidden" id="OutputDocuments_@(Model.Id)__Id"
+               name="OutputDocuments[@(Model.Id)].Id" class="output" value="" />
+        <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+            Input operation:
+        </div>
+        <input id="OutputDocuments_@(Model.Id)__Type"
+               class="form-control"
+               name="OutputDocuments[@(Model.Id)].Type"
+               type="text"
+               value="" />
+    </div>
+
+    <div class="input-group mb-3 col">
+        <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+            Output operation:
+        </div>
+        <select id="OutputDocuments_@(Model.Id)__OutputOperationViewModel"
+                name="OutputDocuments[@(Model.Id)].OutputOperationViewModel"
+                class="custom-select"
+                asp-items="@Html.GetEnumSelectList(typeof(OutputOperationsViewModel))"></select>
+
+    </div>
+    <div class="mb-3 col">
+        <div class="row">
+            <div class="col-form-label" style="margin-left: 0.5rem;">
+                Template:
+            </div>
+
+            <div class="mb-3 col">
+                <div class="form-control custom-file">
+                    <input id="OutputDocuments_@(Model.Id)__File"
+                           name="OutputDocuments[@(Model.Id)].Document.File"
+                           type="file" multiple
+                           class="custom-file-input" />
+                    <label class="custom-file-label"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

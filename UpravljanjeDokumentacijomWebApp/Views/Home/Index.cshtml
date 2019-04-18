@@ -1,0 +1,80 @@
+﻿@model ActivityViewModel
+@{
+    ViewData["Title"] = "Kreiraj aktivnost!";
+}
+
+
+<link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.css">
+
+<form method="post" enctype="multipart/form-data"
+      asp-controller="Home"
+      asp-action="SaveActivity">
+    <div class="container" id="Input">
+        <h4 style="margin-bottom: 1.5rem;">Add input</h4>
+        <div class="text-center" id="inputBody">
+            @Html.Partial("_InputPartial", new DocumentViewModel { Id = 0 })
+        </div>
+        <div class="row">
+            <div class="input-group mb-3 col">
+                <button type="button" value="Add input" id="AddInput" style="border-radius: 5%;font-weight: bold;"
+                        class="btn btn-success">
+                    <i class="fas fa-plus"></i>
+                    Add new input
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="container" id="Output">
+        <h4 style="margin-bottom: 1.5rem;">Add output</h4>
+        <div class="text-center" id="outputBody">
+            @Html.Partial("_OutputPartial", new DocumentViewModel { Id = 0 })
+        </div>
+        <div class="row">
+            <div class="input-group mb-3 col">
+
+                <button type="button" value="Add output" id="AddOutput" style="border-radius: 5%;font-weight: bold;"
+                        class="btn btn-success">
+                    <i class="fas fa-plus"></i>
+                    Add new output
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row justify-content-md-center">
+        <div class="col-2">
+            <input type="submit" value="Start activity!" class="btn btn-primary btn-lg" style="font-weight: bold;background-color: #ac00c3;border: none;" />
+        </div>
+    </div>
+</form>
+
+<script>
+    $('#AddInput').click(function () {
+        var i = $(".input").length;
+        $.ajax({
+            url: 'AddInput?index=' + i,
+            success: function (data) {
+                $('#inputBody').append(data);
+            },
+            error: function (a, b, c) {
+                console.log(a, b, c);
+            }
+        });
+    });
+    $('#AddOutput').click(function () {
+        var i = $(".output").length;
+        $.ajax({
+            url: 'AddOutput?index=' + i,
+            success: function (data) {
+                $('#outputBody').append(data);
+            },
+            error: function (a, b, c) {
+                console.log(a, b, c);
+            }
+        });
+    });
+
+</script>

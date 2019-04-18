@@ -1,0 +1,24 @@
+﻿@model DocumentViewModel
+
+<div class="row">
+    @Html.HiddenFor(m => m.Id, new { @class = "input" })
+    <div class="input-group mb-3 col">
+        <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+            Type name:
+        </div>
+        <input id="InputDocuments_@(Model.Id)__Type"
+               name="InputDocuments[@(Model.Id)].Type"
+               class="form-control" type="text" value="" />
+
+    </div>
+    <div class="input-group mb-3 col">
+        <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+            Input operation:
+        </div>
+        <select class="custom-select"
+                id="InputDocuments_@(Model.Id)__InputOperationViewModel"
+                name="InputDocuments[@(Model.Id)].InputOperationViewModel"
+                asp-for="InputOperationViewModel"
+                asp-items="@Html.GetEnumSelectList(typeof(InputOperationsViewModel))"></select>
+    </div>
+</div>

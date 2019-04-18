@@ -1,0 +1,43 @@
+﻿@model OperationViewModel
+
+<h3 class="display-4 text-center">New operation</h3>
+<hr style="border-width: thick;">
+<div class="p-3">
+    <form method="post" asp-action="SaveOperation"
+          asp-controller="Home"
+          enctype="multipart/form-data">
+        @if (Model.InputReceive != null || Model.InputByRequest != null)
+        {
+            <div class="row px-3">
+                <h3 class="my-2">Input documents</h3>
+            </div>
+            Model.InputByRequest[0].IdName = "InputByRequest"; 
+            Model.InputReceive[0].IdName = "InputReceive";
+            
+            @Html.Partial("_ReceiveDocuments", Model.InputReceive)
+
+            @Html.Partial("_ReceiveDocuments", Model.InputByRequest)
+        }
+        @if (Model.Output != null || Model.Output != null)
+        {
+            <div class="row px-3"> <h3 class="my-2">Output documents</h3></div>
+
+            //@Html.EditorFor(m => m.Output);
+            @Html.Partial("_OperationOutputPartial", Model.Output)
+            <div class="row justify-content-md-center">
+                <div class="col-2">
+                    <input type="submit" value="Do operation!"
+                           id="OperationSubmitBtn"
+                           class="btn btn-primary btn-lg"
+                           style="font-weight: bold;background-color: #ac00c3;border: none;" />
+                </div>
+            </div>
+        }
+    </form>
+</div>
+
+<script>
+    $('#OperationSubmitBtn').click(function () {
+        alert("Operation done!");
+    });
+</script>

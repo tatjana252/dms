@@ -1,0 +1,63 @@
+﻿@model List<DocumentViewModel>
+
+@{int i = 0; }
+@foreach (DocumentViewModel doc in Model)
+{
+
+    <div class="row">
+        <div class="input-group mb-3 col">
+            <input type="hidden" id="Output_@(i)__Id"
+                   name="Output[@i].Id" class="output" value="" />
+            <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+                Type:
+            </div>
+            <input id="Output_@(i)__Type"
+                   class="form-control"
+                   name="Output[@i].Type"
+                   type="text"
+                   value="@(doc.Type)"
+                   disabled />
+        </div>
+
+        <div class="input-group mb-3 col">
+            <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+                Output operation:
+            </div>
+
+            <input id="Output_@(i)__OutputOperationViewModel"
+                   class="form-control"
+                   name="Output[@(i)].OutputOperationViewModel"
+                   type="text"
+                   value="@(doc.OutputOperationViewModel)"
+                   disabled />
+
+
+        </div>
+        <div class="mb-3 col">
+            <div class="row">
+                <div class="col-form-label" style="margin-left: 0.5rem;">
+                    Template:
+                </div>
+
+                <div class="mb-3 col">
+                    <div class="form-control custom-file">
+                        <input id="Output_@(i)__File"
+                               name="Output[@(i)].Document.File"
+                               type="file" multiple
+                               class="custom-file-input" />
+                        <label class="custom-file-label" for="Output_@(i)__File"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    i++;
+}
+
+<script>
+    $('input[type="file"]').change(function (e) {
+        var fileName = e.target.files[0].name;
+        $("label[for='" + e.target.id + "']").html(fileName);
+    });
+
+</script>

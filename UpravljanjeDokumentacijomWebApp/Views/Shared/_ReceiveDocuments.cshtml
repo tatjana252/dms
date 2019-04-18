@@ -1,0 +1,80 @@
+﻿@model List<DocumentViewModel>
+
+@if (Model != null && Model.Any())
+{
+    int i = 0;
+    var results = Model.GroupBy(x => x.Type);
+    foreach (var group in results)
+    {
+
+        <div class="row px-4 py-1">
+            <h4>
+                <small class="text-muted">Type name:</small> @group.Key
+            </h4>
+        </div>
+        <div class="row justify-content-center p-1">
+            <div class="col-10 bg-light " style="margin: auto;">
+                <table class="table table-hover col-10" id="@group.Key">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="w-50">Id</th>
+                            <th scope="col" class="w-50">Document</th>
+                            <th scope="col" class="w-25">Selected</th>
+                        </tr>
+                    </thead>
+
+                    @foreach (DocumentViewModel doc in group)
+                    {
+
+                        <tr id="@doc.Id" class="doc" data-href="@Url.Action("GetDocument", "Home", new { id = doc.Id })">
+                            
+                            <td id="@(Model[0].IdName)_@(i)__Id"
+                                name="@(Model[0].IdName)[@i].Id">
+                                @doc.Id
+                            </td>
+                            <td id="@(Model[0].IdName)_@(i)__Name"
+                                name="@(Model[0].IdName)[@i].Name">
+                                @if (doc.Document != null)
+                                {
+                                    @doc.Document.Name
+                                }
+                            </td>
+
+                            <td style="text-align: center">
+                                <input type="checkbox" class="status" id="@(Model[0].IdName)@(i)__Selected"
+                                name="@(Model[0].IdName)[@i].Selected">
+                            </td>
+
+                            <td class="invisible"><input type="hidden" id="@(Model[0].IdName)_@(i)__Id"
+                   name="@(Model[0].IdName)[@i].Id" class="output" value="@doc.Id" /></td>
+                        </tr>
+                        i++;
+                    }
+                </table>
+            </div>
+        </div>
+        <script>
+            $(".doc").click(function (event) {
+
+                if (!$(this).hasClass('table-success')) {
+                    window.open($(this).data("href"));
+                    $(this).addClass('table-success');
+                    $(this).children('td').children('.status').prop('checked', true);
+                    $(this).children('td').children('.status').prop('value', true);
+                } else {
+                    $(this).removeClass('table-success');
+                    $(this).children('td').children('.status').prop('checked', false);
+                    $(this).children('td').children('.status').prop('value', false);
+                }
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+            });
+
+
+        </script>
+    }
+}
+else
+{
+    <h3>No data!!!</h3>
+}
