@@ -22,7 +22,7 @@ namespace DTO.Models
 
     public enum InputOperationsDTO
     {
-        Recieve, Request,
+        Receive, Request,
     }
 
     public enum OutputOperationsDTO

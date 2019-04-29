@@ -65,6 +65,7 @@ namespace DocumentManagement
             //posalji
             foreach(DocumentDTO dto in operation.OutputDocuments)
             {
+                Console.WriteLine("Sending document "+dto.Type);
                 _bus.SendDocument(Mapper.Map<Document>(dto));
             }
         }

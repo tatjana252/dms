@@ -71,7 +71,7 @@ namespace DocumentManagement.Messaging
 
         public void AddRequestConsumer(Document input)
         {
-            host.ConnectReceiveEndpoint($"{input.Type}Request", e =>
+            host.ConnectReceiveEndpoint($"{input.Type.Replace(" ", "")}Request", e =>
             {
                 e.BindMessageExchanges = false;
                 e.Consumer<DocumentRequestHandler>();
