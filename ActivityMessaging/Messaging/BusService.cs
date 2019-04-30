@@ -16,11 +16,12 @@ namespace DocumentManagement.Messaging
         }
         public void Start(Activity activity)
         {
+
             ConfigureInput(activity.InputDocuments);
             ConfigureOutput(activity.OutputDocuments);
             _bus.StartBus();
         }
-        public DocumentsResponse SendRequest(Document input)
+        public DocumentsResponse SendRequest(DocumentInfo input)
         {
             return _bus.Request(input);
         }
@@ -29,7 +30,7 @@ namespace DocumentManagement.Messaging
             _bus.Publish(document);
         }
 
-        private void ConfigureInput(IEnumerable<Document> inputs)
+        private void ConfigureInput(IEnumerable<DocumentInfo> inputs)
         {
             if(inputs != null)
             foreach (var input in inputs)
@@ -44,7 +45,7 @@ namespace DocumentManagement.Messaging
                 }
             }
         }
-        private void ConfigureOutput(IEnumerable<Document> outputs)
+        private void ConfigureOutput(IEnumerable<DocumentInfo> outputs)
         {
             if (outputs != null)
                 foreach (var output in outputs)

@@ -24,7 +24,7 @@ namespace UpravljanjeDokumentacijomWebApp.Controllers
         {
             OperationDTO operationDTO = _activityService.LoadOperation();
             OperationViewModel operation = Mapper.Map<OperationViewModel>(operationDTO);
-        
+       
             return View(operation);
         }
 

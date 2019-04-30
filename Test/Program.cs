@@ -16,16 +16,16 @@ namespace Test
     {
         static void Main()
         {
+            using DMSContext con = new DMSContext();
             Mapper.Initialize(cfg =>
             {
                 cfg.AddProfiles(typeof(DocumentManagement.Automapper.Profiles.ActivityProfile).Assembly);
             });
-            ActivityService activityService = new ActivityService(new DMBus(new RabbitMqBus()), new DocumentRepository(new DMSContext()));
+            
+           
+            ActivityService activityService = new ActivityService(new DMBus(new RabbitMqBus(new DocumentRepository(con))), new DocumentRepository(con));
 
-            ActivityDTO newActivity = new ActivityDTO() {
-                InputDocuments = new List<DocumentDTO>(),
-                OutputDocuments = new List<DocumentDTO>(),
-            };
+            ActivityDTO newActivity = new ActivityDTO();
             List<DocumentDTO> InputDocuments = new List<DocumentDTO>();
             List<DocumentDTO> OutputDocuments = new List<DocumentDTO>();
             do
@@ -64,7 +64,8 @@ namespace Test
             newActivity.OutputDocuments = OutputDocuments;
             activityService.SaveActivity(newActivity);
             Console.WriteLine("Activity created!");
-
+            Console.WriteLine("Create new operation?");
+            Console.ReadKey();
             OperationDTO opDTO = activityService.LoadOperation();
             Console.WriteLine("Received");
 
@@ -76,13 +77,19 @@ namespace Test
             Console.WriteLine("Requested");
             opDTO.Requested?.ToList().ForEach(item => {
                 Console.WriteLine(item.Type + " " + item.File.Name);
+                Console.Write("Id: ");
+                string id = Console.ReadLine();
+                item.Id = Int32.Parse(id);
             });
             Console.WriteLine("Output");
             opDTO.OutputDocuments?.ToList().ForEach(item => {
                 Console.WriteLine(item.Type + " " + item.File.Name);
+                Console.Write("Id: ");
+                string id = Console.ReadLine();
+                item.Id = int.Parse(id);
             });
 
-            
+            activityService.SaveOperation(opDTO);
 
 
             #region jic
@@ -140,6 +147,7 @@ namespace Test
             #endregion
             Console.WriteLine("Kraj!");
             Console.ReadLine();
+            
         }
     }
 }

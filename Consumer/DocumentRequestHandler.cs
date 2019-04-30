@@ -5,22 +5,38 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using DAL.Context;
+using DAL.Interfaces;
+using System.Linq;
 
 namespace Consumer
 {
     public class DocumentRequestHandler : IConsumer<Document>
     {
+        private readonly IDocumentRepository _db;
+
+        public DocumentRequestHandler(IDocumentRepository db)
+        {
+            _db = db;
+        }
+
+        public DocumentRequestHandler()
+        {
+
+        }
+
         public Task Consume(ConsumeContext<Document> context)
         {
             //vratiti
-            List<Document> allDocuments = new List<Document>() {
-            new Document { Id = 121, Type = "c", File = new FileWrapper{
-            Name ="request121.txt", File = File.ReadAllBytes(Path.GetFullPath(@"file\request121.txt")) } } ,
-            new Document { Id = 122, Type = "c", File = new FileWrapper{
-            Name="request122.txt", File = File.ReadAllBytes(Path.GetFullPath(@"file\request122.txt")) } },
-            new Document { Id = 123, Type = "c", File = new FileWrapper{
-            Name="request123.txt", File = File.ReadAllBytes(Path.GetFullPath(@"file\request123.txt")) }} };
-            context.Respond(new DocumentsResponse { Documents = allDocuments });
+
+            var docs = _db.SearchFor(doc => doc.Type == context.Message.Type);
+
+            DocumentsResponse response = new DocumentsResponse
+            {
+                Documents = docs.ToList()
+            };
+
+            context.Respond(response);
             return Task.CompletedTask;
         }
     }

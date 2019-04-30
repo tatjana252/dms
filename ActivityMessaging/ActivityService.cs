@@ -39,8 +39,7 @@ namespace DocumentManagement
         {
             List<DocumentDTO> received = GetReceivedDocuments();
             List<DocumentDTO> requested = RequestDocument();
-            List<Document> output = Activity.OutputDocuments.ToList();
-            List<DocumentDTO> outputDto = Mapper.Map<List<DocumentDTO>>(output);
+            List<DocumentDTO> outputDto = Mapper.Map<List<DocumentDTO>>(Activity.OutputDocuments);
             OperationDTO operation = new OperationDTO()
             {
                 Received = received,
@@ -62,6 +61,10 @@ namespace DocumentManagement
             //}
             //čuvanje
 
+            operation.Requested?.ToList().ForEach(item => DocumentRepository.Update(Mapper.Map<Document>(item)));
+            operation.Received?.ToList().ForEach(item => DocumentRepository.Update(Mapper.Map<Document>(item)));
+            operation.OutputDocuments?.Where(item => item.OutputOperation == OutputOperationsDTO.Create).ToList().ForEach(item => DocumentRepository.Insert(Mapper.Map<Document>(item)));
+            
             //posalji
             foreach(DocumentDTO dto in operation.OutputDocuments)
             {
@@ -83,9 +86,9 @@ namespace DocumentManagement
         public List<DocumentDTO> RequestDocument()
         {
             List<DocumentDTO> result = new List<DocumentDTO>();
+            List<DocumentInfo> req = Activity.InputDocuments.Where(x => x.InputOperation == InputOperations.Request).ToList();
 
-            List<Document> req = Activity.InputDocuments.Where(x => x.InputOperation == InputOperations.Request).ToList();
-            foreach (Document d in req)
+            foreach (DocumentInfo d in req)
             {
                 // posalji request i stavi rezultat u operation
                 DocumentsResponse response = _bus.SendRequest(d);

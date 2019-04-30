@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ActivityMessaging\DocumentManagement.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>

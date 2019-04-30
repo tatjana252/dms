@@ -12,6 +12,9 @@ namespace DAL.Configuration
         public void Configure(EntityTypeBuilder<Document> builder)
         {
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).ValueGeneratedNever();
+            builder.OwnsOne(x => x.File);
+            
         }
     }
 }

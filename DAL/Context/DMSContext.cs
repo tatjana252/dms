@@ -13,13 +13,15 @@ namespace DAL.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(configuration["connectionString"]);
-            optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB; Database=DMSMS; Trusted_Connection=true;");
+         // optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB; Database=Dmsms; Trusted_Connection=true;");
+            optionsBuilder.UseInMemoryDatabase("miname");
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new DocumentConfiguration());
+            
         }
     }
 }

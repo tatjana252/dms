@@ -19,6 +19,7 @@ namespace DAL
         public virtual void Insert(T entity)
         {
             Context.Set<T>().Add(entity);
+            Context.SaveChanges();
         }
 
         public virtual void Delete(T entity)

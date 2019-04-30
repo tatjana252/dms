@@ -6,6 +6,7 @@ using MassTransitExtensions;
 using RabbitMQ.Client;
 using System;
 using Models;
+using DAL.Repositories;
 
 namespace DocumentManagement.Messaging
 {
@@ -17,10 +18,17 @@ namespace DocumentManagement.Messaging
     {
         private IBusControl bus;
         private IRabbitMqHost host;
+        private DocumentRepository documentRepository;
 
         public RabbitMqBus()
         {
             SetUpBus();
+        }
+
+        public RabbitMqBus(DocumentRepository documentRepository)
+        {
+            SetUpBus();
+            this.documentRepository = documentRepository;
         }
 
         public void SetUpBus()
@@ -40,21 +48,21 @@ namespace DocumentManagement.Messaging
             });
         }
 
-        public void AddConsumer(Document input)
+        public void AddConsumer(DocumentInfo input)
         {
             //dodajemo osluskivac koji dobija dokumenta sa tim routing key
             //routing key je tip dokumenta
-            host.AddDocumentEndpoint<ReceiveDocument>(input.Type);
+            host.AddDocumentEndpoint<ReceiveDocument>(input.Type, documentRepository);
         }
 
-        public DocumentsResponse Request(Document input)
+        public DocumentsResponse Request(DocumentInfo input)
         {
 
             try
             {
                 var address = new Uri("rabbitmq://localhost/" + input.Type + "Request");
                 var requestTimeout = TimeSpan.FromSeconds(10);
-                IRequestClient<Document, DocumentsResponse> requestClient = 
+                IRequestClient<Document, DocumentsResponse> requestClient =
                     new MessageRequestClient<Document, DocumentsResponse>(bus, address, requestTimeout);
                 return requestClient.Request(input).Result;
             }
@@ -69,12 +77,24 @@ namespace DocumentManagement.Messaging
             bus.Publish(document);
         }
 
-        public void AddRequestConsumer(Document input)
+        public void AddRequestConsumer(DocumentInfo input)
         {
             host.ConnectReceiveEndpoint($"{input.Type.Replace(" ", "")}Request", e =>
             {
                 e.BindMessageExchanges = false;
-                e.Consumer<DocumentRequestHandler>();
+                if (documentRepository == null)
+                {
+                    e.Consumer<DocumentRequestHandler>();
+                }
+                else
+                {
+
+                    e.Consumer<DocumentRequestHandler>(() => { return new DocumentRequestHandler(documentRepository); });
+                }
+
+
+                e.AutoDelete = false;
+                e.Durable = true;
             });
         }
 

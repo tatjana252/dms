@@ -23,7 +23,12 @@
             <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
                 Output operation:
             </div>
-
+            <input id="Output_@(i)__OutputOperationViewModel"
+                   class="form-control"
+                   name="Output[@(i)].OutputOperationViewModel"
+                   type="text"
+                   value="@(doc.OutputOperationViewModel.Value)"
+                   hidden />
             <input id="Output_@(i)__OutputOperationViewModel"
                    class="form-control"
                    name="Output[@(i)].OutputOperationViewModel"

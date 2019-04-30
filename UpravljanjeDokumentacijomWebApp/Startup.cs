@@ -39,6 +39,7 @@ namespace UpravljanjeDokumentacijomWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+             
             services.AddSingleton<DbContext, DMSContext>();
             services.AddTransient<IDocumentRepository, DocumentRepository>();
             services.AddSingleton<RabbitMqBus>();
@@ -49,6 +50,8 @@ namespace UpravljanjeDokumentacijomWebApp
                 cfg.AddProfiles(typeof(ActivityProfile).Assembly);
                 cfg.AddProfiles(typeof(DocumentManagement.Automapper.Profiles.ActivityProfile).Assembly);
             });
+
+            
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -66,6 +69,13 @@ namespace UpravljanjeDokumentacijomWebApp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            //using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
+            //    context.Database.EnsureCreated();
+            //    context.Database.Migrate();
+            //}
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
