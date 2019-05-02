@@ -43,6 +43,10 @@ namespace Test
                         d.OutputOperation = OutputOperationsDTO.Send;
                         OutputDocuments.Add(d);
                         break;
+                    case "Update":
+                        d.OutputOperation = OutputOperationsDTO.Update;
+                        OutputDocuments.Add(d);
+                        break;
                     case "Create":
                         d.OutputOperation = OutputOperationsDTO.Create;
                         OutputDocuments.Add(d);

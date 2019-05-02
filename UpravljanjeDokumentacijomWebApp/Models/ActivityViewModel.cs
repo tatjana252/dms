@@ -20,6 +20,6 @@ namespace UpravljanjeDokumentacijomWebApp.Models
 
     public enum OutputOperationsViewModel
     {
-        Create, Send
+        Create, Send, Update
     }
 }

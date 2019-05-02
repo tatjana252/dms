@@ -129,6 +129,7 @@ namespace DocumentManagement.Messaging
             });
         }
 
+
         public void AddRequestConsumer(DocumentInfo input)
         {
             host.ConnectReceiveEndpoint($"{input.Type.Replace(" ", "")}Request", e =>

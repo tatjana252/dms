@@ -1,0 +1,75 @@
+﻿@model BinderViewModel
+@{
+    ViewData["Title"] = "Add Binder!";
+}
+
+
+<link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.css">
+
+<form method="post" enctype="multipart/form-data"
+      asp-controller="Binder"
+      asp-action="CreateBinder">
+    <div class="container">
+        <h4 style="margin-bottom: 1.5rem;">Event</h4>
+        <div class="input-group mb-3 col">
+            <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+                Type name:
+            </div>
+            <input id="InititatorType"
+                   name="InititatorType"
+                   class="form-control" type="text" value="" />
+        </div>
+    
+    <div class="input-group mb-3 col">
+        <div class="col-form-label" style="margin: 0 0.5rem 0 0;">
+            Output operation:
+        </div>
+        <select id="Operation"
+                name="Operation"
+                class="custom-select"
+                asp-items="@Html.GetEnumSelectList(typeof(OutputOperationsViewModel))"></select>
+
+    </div>
+        </div>
+    <hr />
+
+    <div class="container" id="BindedDocs">
+        <h4 style="margin-bottom: 1.5rem;">Add binded documents</h4>
+        <div class="text-center" id="documentinfo">
+            @Html.Partial("_BindedDocumentPartial", new BindedDocumentVM());
+        </div>
+        <div class="row">
+            <div class="input-group mb-3 col">
+
+                <button type="button" value="Add binded" id="AddBinded" style="border-radius: 5%;font-weight: bold;"
+                        class="btn btn-success">
+                    <i class="fas fa-plus"></i>
+                    Add doc
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row justify-content-md-center">
+        <div class="col-2">
+            <input type="submit" value="Start activity!" class="btn btn-primary btn-lg" style="font-weight: bold;background-color: #ac00c3;border: none;" />
+        </div>
+    </div>
+</form>
+
+<script>
+
+    $('#AddBinded').click(function () {
+        var i = $(".binded").length;
+        $.ajax({
+            url: 'AddBinded?index=' + i,
+            success: function (data) {
+                $('#documentinfo').append(data);
+            },
+            error: function (a, b, c) {
+                console.log(a, b, c);
+            }
+        });
+    });
+
+</script>

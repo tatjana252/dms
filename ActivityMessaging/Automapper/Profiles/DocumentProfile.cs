@@ -13,6 +13,9 @@ namespace DocumentManagement.Automapper.Profiles
             CreateMap<DocumentInfo, Document>().ReverseMap();
             CreateMap<DocumentInfo, DocumentDTO>().ReverseMap();
             CreateMap<FileWrapperDTO, Models.FileWrapper>().ReverseMap();
+
+            CreateMap<DocumentDTO, DocumentCreatedEvent>().ReverseMap();
+            CreateMap<DocumentDTO, UpdateDocumentCommand>().ReverseMap();
         }
     }
 }

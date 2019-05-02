@@ -81,7 +81,7 @@ namespace DocumentManagement
 
             operation.OutputDocuments?.Where(d => d.OutputOperation == OutputOperationsDTO.Update).ToList().ForEach(item =>
             {
-                _bus.PublishDocumentCreated(Mapper.Map<Document>(item));
+                _bus.Publish(Mapper.Map<UpdateDocumentCommand>(item));
             });
 
             operation.OutputDocuments?.Where(d => d.OutputOperation == OutputOperationsDTO.Send).ToList().ForEach(doc =>
@@ -127,8 +127,5 @@ namespace DocumentManagement
 
     }
 
-    public class Binder {
-        public string InititatorType { get; set; } = "";
-        public Dictionary<string, STATE> Outputs { get; set; } = new Dictionary<string, STATE>();
-    }
+   
 }

@@ -24,7 +24,12 @@ namespace UpravljanjeDokumentacijomWebApp.Controllers
         {
             OperationDTO operationDTO = _activityService.LoadOperation();
             OperationViewModel operation = Mapper.Map<OperationViewModel>(operationDTO);
-       
+            if (operation.InputByRequest.Any())
+            operation.InputByRequest.First().IdName = "InputByRequest";
+
+            if (operation.InputReceive.Any())
+            operation.InputReceive.First().IdName = "InputReceive";
+
             return View(operation);
         }
 
@@ -32,8 +37,8 @@ namespace UpravljanjeDokumentacijomWebApp.Controllers
         [Consumes("multipart/form-data")]
         public IActionResult SaveOperation(OperationViewModel operation)
         {
-            operation.InputReceive = operation.InputReceive.Where(x => x.Selected).ToList();
-            operation.InputByRequest = operation.InputByRequest.Where(x => x.Selected).ToList();
+            operation.InputReceive = operation.InputReceive?.Where(x => x.Selected)?.ToList();
+            operation.InputByRequest = operation.InputByRequest?.Where(x => x.Selected)?.ToList();
             _activityService.SaveOperation(Mapper.Map<OperationDTO>(operation));
             return View();
         }
