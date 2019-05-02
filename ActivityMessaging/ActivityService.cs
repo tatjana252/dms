@@ -1,11 +1,11 @@
-﻿using Models;
+﻿using AutoMapper;
+using DAL.Interfaces;
+using DocumentManagement.Messaging;
 using DTO.Models;
+using Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
-using DocumentManagement.Messaging;
-using DAL.Interfaces;
 
 namespace DocumentManagement
 {
@@ -16,9 +16,9 @@ namespace DocumentManagement
         public Activity Activity { get; set; }
         public IDocumentRepository DocumentRepository { get; }
 
-        private readonly DMBus _bus;
+        private readonly IBus _bus;
 
-        public ActivityService(DMBus bus, IDocumentRepository documentRepository)
+        public ActivityService(IBus bus, IDocumentRepository documentRepository)
         {
             _bus = bus;
             DocumentRepository = documentRepository;
@@ -28,7 +28,15 @@ namespace DocumentManagement
         public void SaveActivity(ActivityDTO dto)
         {
             Activity = Mapper.Map<Activity>(dto);
-            _bus.Start(Activity);
+            Activity.InputDocuments.Where(i => i.InputOperation == InputOperations.Receive)
+                .ToList().ForEach(i => _bus.AddConsumer(i));
+            Activity.OutputDocuments.Where(i => i.OutputOperation == OutputOperations.Create)
+                .ToList().ForEach(i =>
+                {
+                    _bus.AddRequestConsumer(i);
+                    _bus.AddUpdateConsumer(i);
+                });
+            _bus.StartBus();
         }
 
         //vraca objekat koji sadrzi:
@@ -61,27 +69,33 @@ namespace DocumentManagement
             //}
             //čuvanje
 
+            // SELECTED REQUESTED AND RECEIVED DOCS
             operation.Requested?.ToList().ForEach(item => DocumentRepository.Update(Mapper.Map<Document>(item)));
             operation.Received?.ToList().ForEach(item => DocumentRepository.Update(Mapper.Map<Document>(item)));
-            operation.OutputDocuments?.Where(item => item.OutputOperation == OutputOperationsDTO.Create).ToList().ForEach(item => DocumentRepository.Insert(Mapper.Map<Document>(item)));
-            
-            //posalji
-            foreach(DocumentDTO dto in operation.OutputDocuments)
+            operation.OutputDocuments?.ToList().ForEach(item => DocumentRepository.Insert(Mapper.Map<Document>(item)));
+
+            operation.OutputDocuments?.Where(d => d.OutputOperation == OutputOperationsDTO.Create).ToList().ForEach(item =>
             {
-                Console.WriteLine("Sending document "+dto.Type);
-                _bus.SendDocument(Mapper.Map<Document>(dto));
-            }
+                _bus.PublishDocumentCreated(Mapper.Map<Document>(item));
+            });
+
+            operation.OutputDocuments?.Where(d => d.OutputOperation == OutputOperationsDTO.Update).ToList().ForEach(item =>
+            {
+                _bus.PublishDocumentCreated(Mapper.Map<Document>(item));
+            });
+
+            operation.OutputDocuments?.Where(d => d.OutputOperation == OutputOperationsDTO.Send).ToList().ForEach(doc =>
+            {
+                Console.WriteLine("Sending document " + doc.Type);
+                _bus.Publish(Mapper.Map<Document>(doc));
+            });
         }
 
+        //nepotrebno
         public DocumentDTO GetDocumentById(int id)
         {
             return Mapper.Map<DocumentDTO>(Test.dokumenta.Single(x => x.Id == id));
         }
-
-        //public void SendDocument(Document doc)
-        //{
-        //    _bus.SendDocument(doc);
-        //}
 
         public List<DocumentDTO> RequestDocument()
         {
@@ -91,13 +105,10 @@ namespace DocumentManagement
             foreach (DocumentInfo d in req)
             {
                 // posalji request i stavi rezultat u operation
-                DocumentsResponse response = _bus.SendRequest(d);
+                DocumentsResponse? response = _bus.Request(d);
                 if (response != null)
                 {
                     result.AddRange(Mapper.Map<List<DocumentDTO>>(response.Documents));
-                    // dodaj u bazu
-                    // čisto da postoji kopija i evidencija o pročitanim dokumentima
-                    Test.dokumenta.AddRange(response.Documents);
                 }
             }
             return result;
@@ -105,8 +116,19 @@ namespace DocumentManagement
 
         public List<DocumentDTO> GetReceivedDocuments()
         {
-            List<DocumentDTO> result = Mapper.Map<List<DocumentDTO>>(Test.dokumenta);
-            return result;
+            var docs = DocumentRepository.SearchFor(d => d.InputOperation == InputOperations.Receive).ToList();
+            return Mapper.Map<List<DocumentDTO>>(docs);
         }
+
+        public void AddBinder(Binder binder)
+        {
+            _bus.AddBinderConsumer(new DocumentInfo { Type = binder.InititatorType });
+        }
+
+    }
+
+    public class Binder {
+        public string InititatorType { get; set; } = "";
+        public Dictionary<string, STATE> Outputs { get; set; } = new Dictionary<string, STATE>();
     }
 }

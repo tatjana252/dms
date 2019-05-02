@@ -23,7 +23,7 @@ namespace Test
             });
             
            
-            ActivityService activityService = new ActivityService(new DMBus(new RabbitMqBus(new DocumentRepository(con))), new DocumentRepository(con));
+            ActivityService activityService = new ActivityService(new RabbitMqBus(new DocumentRepository(con)), new DocumentRepository(con));
 
             ActivityDTO newActivity = new ActivityDTO();
             List<DocumentDTO> InputDocuments = new List<DocumentDTO>();
@@ -62,28 +62,40 @@ namespace Test
             } while (Console.ReadKey().Key != ConsoleKey.Escape);
             newActivity.InputDocuments = InputDocuments;
             newActivity.OutputDocuments = OutputDocuments;
+            Console.WriteLine("Binder da?");
+           if(Console.ReadLine() == "da")
+           activityService.AddBinder(new Binder { InititatorType = "Narudzbenica", Outputs = new Dictionary<string, STATE> { { "Narudzbenica", STATE.CHANGED } }
+          });
             activityService.SaveActivity(newActivity);
             Console.WriteLine("Activity created!");
+
+            //make binder
+
+
+
+
+
+
             Console.WriteLine("Create new operation?");
             Console.ReadKey();
             OperationDTO opDTO = activityService.LoadOperation();
             Console.WriteLine("Received");
 
             opDTO.Received?.ToList().ForEach(item => {
-                Console.WriteLine(item.Type + " " + item.File.Name);
+                Console.WriteLine(item.Type + " " + item.File.Name + " " + item.Id);
             });
 
 
             Console.WriteLine("Requested");
             opDTO.Requested?.ToList().ForEach(item => {
-                Console.WriteLine(item.Type + " " + item.File.Name);
+                Console.WriteLine(item.Type + " " + item.File.Name + " " + item.Id);
                 Console.Write("Id: ");
                 string id = Console.ReadLine();
                 item.Id = Int32.Parse(id);
             });
             Console.WriteLine("Output");
             opDTO.OutputDocuments?.ToList().ForEach(item => {
-                Console.WriteLine(item.Type + " " + item.File.Name);
+                Console.WriteLine(item.Type + " ");
                 Console.Write("Id: ");
                 string id = Console.ReadLine();
                 item.Id = int.Parse(id);

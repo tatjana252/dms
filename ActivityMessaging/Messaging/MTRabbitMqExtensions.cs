@@ -1,4 +1,4 @@
-﻿using Consumer;
+﻿using Consumers;
 using DAL.Interfaces;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
@@ -29,7 +29,7 @@ namespace MassTransitExtensions
         //    });
         //}
 
-        public static void AddDocumentEndpoint<TConsumer>(this IRabbitMqHost host, string epName, IDocumentRepository repo) where TConsumer : ReceiveDocument, IConsumer, new()
+        public static void AddDocumentEndpoint<TConsumer>(this IRabbitMqHost host, string epName, IDocumentRepository repo) where TConsumer : class, IConsumer, new()
         {
             host.ConnectReceiveEndpoint(epName, e =>
             {
@@ -48,5 +48,7 @@ namespace MassTransitExtensions
 
             });
         }
+
+
     }
 }

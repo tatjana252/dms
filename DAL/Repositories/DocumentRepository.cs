@@ -13,5 +13,10 @@ namespace DAL.Repositories
         {
 
         }
+
+        public void UpdateState(Document d)
+        {
+         //   Context.Entry(d.State).State = EntityState.Modified;
+        }
     }
 }

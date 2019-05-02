@@ -42,6 +42,6 @@ namespace Models
 
     public enum OutputOperations
     {
-        Create, Send
+        Create, Send, Update
     }
 }

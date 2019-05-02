@@ -7,5 +7,6 @@ namespace DAL.Interfaces
 {
      public interface IDocumentRepository : IRepository<Document>
     {
+        void UpdateState(Document d);
     }
 }

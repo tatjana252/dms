@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DTO.Models
 {
@@ -6,12 +7,13 @@ namespace DTO.Models
     {
         //Type of document
         public string Type { get; set; }
-        //CorrelationID - from SagaStateMachineInstance
-        public Guid CorrelationId { get; set; }
-        public int? Id { get; set; }
+        public int Id { get; set; }
+        //id and type
+        public IDictionary<int, string> CorrelatedDocs { get; set; }
         public FileWrapperDTO File { get; set; } = new FileWrapperDTO();
         public InputOperationsDTO? InputOperation { get; set; }
         public OutputOperationsDTO? OutputOperation { get; set; }
+       
     }
 
     public class FileWrapperDTO
@@ -27,6 +29,7 @@ namespace DTO.Models
 
     public enum OutputOperationsDTO
     {
-        Create, Send
+        Create, Send,
+        Update
     }
 }

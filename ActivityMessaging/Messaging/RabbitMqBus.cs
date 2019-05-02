@@ -1,4 +1,4 @@
-﻿using Consumer;
+﻿using Consumers;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
 using MassTransit.Util;
@@ -7,6 +7,7 @@ using RabbitMQ.Client;
 using System;
 using Models;
 using DAL.Repositories;
+using DAL.Interfaces;
 
 namespace DocumentManagement.Messaging
 {
@@ -14,18 +15,13 @@ namespace DocumentManagement.Messaging
     //podesavanja slanja, redova, osluskivaca
     //vracanje klijenata koji su zadruzeni za slanje commandi i objavljivanje dogadjaja
     //konkretna podesavanja vezana za konkretni messaging bus
-    public class RabbitMqBus
+    public class RabbitMqBus : IBus
     {
         private IBusControl bus;
         private IRabbitMqHost host;
-        private DocumentRepository documentRepository;
+        private IDocumentRepository documentRepository;
 
-        public RabbitMqBus()
-        {
-            SetUpBus();
-        }
-
-        public RabbitMqBus(DocumentRepository documentRepository)
+        public RabbitMqBus(IDocumentRepository documentRepository)
         {
             SetUpBus();
             this.documentRepository = documentRepository;
@@ -42,9 +38,18 @@ namespace DocumentManagement.Messaging
                 });
 
                 //setting up sending
-                sbc.Send<Document>(x => x.UseRoutingKeyFormatter(e => e.Message.Type));
+                sbc.Send<Document>(x => { x.UseRoutingKeyFormatter(e => e.Message.Type); });
                 sbc.Message<Document>(x => x.SetEntityName("document"));
-                sbc.Publish<Document>(x => { x.ExchangeType = ExchangeType.Direct; });
+                sbc.Publish<Document>(x => { x.ExchangeType = ExchangeType.Direct;});
+
+
+                sbc.Message<DocumentCreatedEvent>(x => x.SetEntityName("document_created"));
+                sbc.Publish<DocumentCreatedEvent>(x => x.ExchangeType = ExchangeType.Direct);
+
+
+                sbc.Message<UpdateDocumentCommand>(x => x.SetEntityName("updatedoc"));
+                sbc.Publish<UpdateDocumentCommand>(x => x.ExchangeType = ExchangeType.Direct);
+                sbc.Send<UpdateDocumentCommand>(x => x.UseRoutingKeyFormatter(e => e.Message.Type));
             });
         }
 
@@ -55,7 +60,7 @@ namespace DocumentManagement.Messaging
             host.AddDocumentEndpoint<ReceiveDocument>(input.Type, documentRepository);
         }
 
-        public DocumentsResponse Request(DocumentInfo input)
+        public DocumentsResponse? Request(DocumentInfo input)
         {
 
             try
@@ -71,10 +76,57 @@ namespace DocumentManagement.Messaging
                 return null;
             }
         }
+        public void AddUpdateConsumer(DocumentInfo i)
+        {
+            host.ConnectReceiveEndpoint(i.Type, e =>
+            {
+                e.BindMessageExchanges = false;
+                e.Consumer(() => new UpdateDocument(documentRepository));
 
-        public void Publish(Document document)
+                //document is queue name
+                e.Bind("updatedoc", s =>
+                {
+                    s.RoutingKey = i.Type;
+                    s.ExchangeType = ExchangeType.Direct;
+                });
+                e.Durable = true;
+                e.AutoDelete = true;
+
+
+            });
+        }
+
+        public void AddBinderConsumer(DocumentInfo i)
+        {
+            host.ConnectReceiveEndpoint("created_" + i.Type.ToLower(), e =>
+              {
+                  e.BindMessageExchanges = false;
+                  e.Consumer(() => new DocCreatedEventHandler(documentRepository));
+                  e.Bind("document_created", s =>
+                  {
+                      s.RoutingKey = i.Type;
+                      s.ExchangeType = ExchangeType.Direct;
+                  });
+              });
+        }
+
+        public void Publish(object document)
         {
             bus.Publish(document);
+
+        }
+
+        public void PublishDocumentCreated(Document document)
+        {
+            DocumentCreatedEvent evt = new DocumentCreatedEvent
+            {
+                Id = document.Id,
+                Type = document.Type,
+                CorrelatedDocs = document.CorrelatedDocs
+            };
+            bus.Publish(evt, typeof(DocumentCreatedEvent), c => { c.SetRoutingKey(document.Type);
+                
+            });
         }
 
         public void AddRequestConsumer(DocumentInfo input)
@@ -89,9 +141,8 @@ namespace DocumentManagement.Messaging
                 else
                 {
 
-                    e.Consumer<DocumentRequestHandler>(() => { return new DocumentRequestHandler(documentRepository); });
+                    e.Consumer(() => { return new DocumentRequestHandler(documentRepository); });
                 }
-
 
                 e.AutoDelete = false;
                 e.Durable = true;
@@ -107,6 +158,7 @@ namespace DocumentManagement.Messaging
         {
             TaskUtil.Await(() => bus.StopAsync());
         }
+
 
         ~RabbitMqBus()
         {

@@ -41,9 +41,8 @@ namespace UpravljanjeDokumentacijomWebApp
 
              
             services.AddSingleton<DbContext, DMSContext>();
-            services.AddTransient<IDocumentRepository, DocumentRepository>();
-            services.AddSingleton<RabbitMqBus>();
-            services.AddSingleton<DMBus>();
+            services.AddSingleton<IDocumentRepository, DocumentRepository>();
+            services.AddSingleton<IBus, RabbitMqBus>();
             services.AddSingleton<ActivityService>();
             Mapper.Initialize(cfg =>
             {
